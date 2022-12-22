@@ -19,7 +19,7 @@
 provider "aws" {
   access_key = "${var.aws_access_key}"
   secret_key = "${var.aws_secret_key}"
-  region     = "us-west-2"
+  region     = "${var.aws_secret_region}"
 }
 
 ##################################################################################
@@ -49,7 +49,7 @@ data "aws_ami" "amazon_linux_ami" {
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm-2017.12.0.20180328.1-x86_64-gp2"]
+    values = ["amzn2-ami-hvm-2.0.20210126.0-x86_64-gp2"]
   }
 }
 
@@ -58,7 +58,7 @@ data "aws_ami" "amazon_linux_ami" {
 data "template_file" "master_userdata" {
   template = "${file("./master_userdata.tpl")}"
 
-  vars {
+  vars = {
     master_hostname = "${var.puppet_master_name}.${var.aws_route53_zone_name}"
     puppet_repo     = "${var.puppet_repository}"
     hosted_zone_id  = "${aws_route53_zone.puppet_zone.zone_id}"
@@ -72,7 +72,7 @@ data "template_file" "master_userdata" {
 ##################################################################################
 
 # IAM - Master Instance Profile #
-
+# Why AssumeRole https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html?
 resource "aws_iam_role" "puppet-master-host-role" {
   name = "puppet-master-host-role"
 
@@ -233,7 +233,7 @@ resource "aws_autoscaling_group" "puppet_master_asg" {
 resource "aws_efs_file_system" "master_node_efs" {
   creation_token = "master_node_efs"
 
-  tags {
+  tags = {
     Name = "master_node_efs"
   }
 }
@@ -247,6 +247,9 @@ resource "aws_efs_mount_target" "efs_mount_target" {
 
 # Route53 #
 resource "aws_route53_zone" "puppet_zone" {
-  name   = "${var.aws_route53_zone_name}"
-  vpc_id = "${var.vpc_id}"
+  name = "${var.aws_route53_zone_name}"
+  vpc {
+    vpc_id = "${var.vpc_id}"
+    vpc_region = "${var.vpc_region}"
+  }
 }

@@ -20,7 +20,7 @@
 data "template_file" "node_userdata" {
   template = "${file("./node_userdata.tpl")}"
 
-  vars {
+  vars = {
     master_hostname = "${var.puppet_master_name}.${var.aws_route53_zone_name}"
     puppet_repo     = "${var.puppet_repository}"
   }
@@ -67,7 +67,7 @@ resource "aws_instance" "puppet_agent_node" {
   key_name                    = "${var.ec2_keypair}"
   user_data                   = "${data.template_file.node_userdata.rendered}"
 
-  tags {
+  tags = {
     Name      = "Puppet Agent Node"
     PP_Master = "${var.puppet_master_name}.${var.aws_route53_zone_name}"
   }
