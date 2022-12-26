@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/bin/bash -ex
+
+exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+echo BEGIN
 
 # Initialize the variables #
 declare -x INPUT_JSON=$(cat <<EOF
@@ -29,7 +32,7 @@ EOF
 function mountefs {
     yum install -y amazon-efs-utils
     mkdir /etc/puppetlabs
-    mount -t efs fs-de0ab596:/ ${efs_id}:/ /etc/puppetlabs
+    mount -t efs ${efs_id}:/ /etc/puppetlabs
 }
 
 function installpuppet {
@@ -79,7 +82,7 @@ EOL
 function installr10k {
     yum -y install git
     export PATH=/opt/puppetlabs/puppet/bin:$PATH
-    /opt/puppetlabs/puppet/bin/gem install r10k
+    /opt/puppetlabs/puppet/bin/gem install r10k -v 2.0.0
 }
 
 export LC_ALL=C
@@ -118,3 +121,5 @@ systemctl enable puppetserver
 /opt/puppetlabs/puppet/bin/r10k deploy environment
 
 puppet cert list --all
+
+echo END
