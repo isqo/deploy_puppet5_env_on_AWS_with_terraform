@@ -73,16 +73,32 @@ function generater10kconfig {
 
 :sources:
   :base:
-    remote: '${r10k_repo}'
+    remote: 'https://github.com/isqo/control-repo?organization=isqo&organization=isqo'
     basedir: '/etc/puppetlabs/code/environments'
 EOL
     fi
 }
 
 function installr10k {
-    yum -y install git
+    sudo yum -y install git gcc libz-dev zlib-devel perl-Data-Dumper libopenssl-devel openssl-devel libxml2-devel libxslt-devel libtool bison libffi libffi-devel readline-devel libyaml
     export PATH=/opt/puppetlabs/puppet/bin:$PATH
-    /opt/puppetlabs/puppet/bin/gem install r10k -v 2.0.0
+    curl -fsSL https://github.com/rbenv/rbenv-installer/raw/HEAD/bin/rbenv-installer | bash
+    # Debug ----------------
+    echo "Whoami: $(whoami)"
+    echo "HOME: $HOME"
+    ls -all ~/
+    # ----------------------
+    echo 'export PATH="~/.rbenv/bin:$PATH"' | sudo tee -a  ~/.bashrc
+    echo 'eval "$(rbenv init -)"' | sudo tee -a  ~/.bashrc
+    source ~/.bashrc
+    [ ! -d "$(rbenv root)"/plugins/ruby-build ] && git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)"/plugins/ruby-build
+    rbenv -v && rbenv install -l  && rbenv install 2.7.7 -v && rbenv global 2.7.7
+    sudo yum install -y rubygems
+    # TODO: improvement, we can restrict the access by groups access for example -----
+    mkdir -p /var/cache/r10k && sudo chmod -R 777 /var/cache/r10k
+    mkdir -p /etc/puppetlabs/code && sudo chmod -R 777 /etc/puppetlabs/code
+    # TODO: ---------------------------------------
+    gem install r10k
 }
 
 export LC_ALL=C
@@ -118,7 +134,7 @@ fi
 # Start the puppet master and add the service to start up #
 systemctl start puppetserver
 systemctl enable puppetserver
-/opt/puppetlabs/puppet/bin/r10k deploy environment
+r10k deploy environment
 
 puppet cert list --all
 
