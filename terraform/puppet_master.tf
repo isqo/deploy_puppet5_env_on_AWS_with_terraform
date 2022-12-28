@@ -194,7 +194,7 @@ resource "aws_launch_configuration" "puppet_master" {
   key_name             = "${var.ec2_keypair}"
   security_groups      = ["${aws_security_group.puppet_master_security_group.id}"]
   iam_instance_profile = "${aws_iam_instance_profile.puppet_master_instance_profile.id}"
-  user_data            = "${data.template_file.master_userdata.rendered}"
+  user_data_base64 = "${base64encode(data.template_file.master_userdata.rendered)}"
 
   lifecycle {
     create_before_destroy = true

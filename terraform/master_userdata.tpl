@@ -42,6 +42,7 @@ function installpuppet {
 
     ### Configure the puppet master ###
     puppet config set certname ${master_hostname} --section main
+    puppet config set server ${master_hostname} --section main
     puppet config set dns_alt_names puppet,${master_hostname} --section master
     puppet config set autosign true --section master
 
@@ -71,9 +72,11 @@ function generater10kconfig {
 ---
 :cachedir: '/var/cache/r10k'
 
+#debug
+
 :sources:
   :base:
-    remote: 'https://github.com/isqo/control-repo?organization=isqo&organization=isqo'
+    remote: '${r10k_repo}'
     basedir: '/etc/puppetlabs/code/environments'
 EOL
     fi
@@ -83,16 +86,19 @@ function installr10k {
     sudo yum -y install git gcc libz-dev zlib-devel perl-Data-Dumper libopenssl-devel openssl-devel libxml2-devel libxslt-devel libtool bison libffi libffi-devel readline-devel libyaml
     export PATH=/opt/puppetlabs/puppet/bin:$PATH
     curl -fsSL https://github.com/rbenv/rbenv-installer/raw/HEAD/bin/rbenv-installer | bash
-    # Debug ----------------
-    echo "Whoami: $(whoami)"
-    echo "HOME: $HOME"
-    ls -all ~/
-    # ----------------------
-    echo 'export PATH="~/.rbenv/bin:$PATH"' | sudo tee -a  ~/.bashrc
+    export RBENV_ROOT=/root/.rbenv
+    echo 'export PATH="/root/.rbenv/bin:$PATH"' | sudo tee -a  ~/.bashrc
     echo 'eval "$(rbenv init -)"' | sudo tee -a  ~/.bashrc
-    source ~/.bashrc
-    [ ! -d "$(rbenv root)"/plugins/ruby-build ] && git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)"/plugins/ruby-build
-    rbenv -v && rbenv install -l  && rbenv install 2.7.7 -v && rbenv global 2.7.7
+    export PATH="/root/.rbenv/bin:$PATH"
+    eval "$(rbenv init -)"
+    if [ ! -d "$(rbenv root)/plugins/ruby-build" ]; then
+      git clone https://github.com/rbenv/ruby-build.git /root/.rbenv/plugins/ruby-build
+    else
+      echo "$(rbenv root)/plugins/ruby-build does exist!"
+    fi
+    rbenv -v
+    rbenv install 2.7.7 -v
+    rbenv global 2.7.7
     sudo yum install -y rubygems
     # TODO: improvement, we can restrict the access by groups access for example -----
     mkdir -p /var/cache/r10k && sudo chmod -R 777 /var/cache/r10k
@@ -132,10 +138,11 @@ else
 fi
 
 # Start the puppet master and add the service to start up #
-systemctl start puppetserver
 systemctl enable puppetserver
+systemctl start puppetserver
+systemctl status puppetserver
+
 r10k deploy environment
 
 puppet cert list --all
-
 echo END
