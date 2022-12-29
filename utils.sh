@@ -1,17 +1,20 @@
 #!/bin/bash -ex
 
 
-function get_puppet_master_dns() {
+function get_puppet_node_dns() {
+
+  NAME=$1
 
   if [[ -z "${AWS_ACCESS_KEY_ID}" ]] || [[ -z "${AWS_SECRET_ACCESS_KEY}" ]] || [[ -z "${AWS_DEFAULT_REGION}" ]]; then
     echo "ERROR: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_DEFAULT_REGION must be set!"
   fi
 
-  PUPPET_MASTER_IP=$(aws ec2 describe-instances  --filters "Name=tag:Name,Values=Puppet Master Server" --query "Reservations[*].Instances[*].PublicDnsName" --output=text)
+  PUPPET_MASTER_IP=$(aws ec2 describe-instances  --filters "Name=tag:Name,Values=$NAME" --query "Reservations[*].Instances[*].PublicDnsName" --output=text)
 
   if [[ -z "${PUPPET_MASTER_IP}" ]]; then
     echo "ERROR: Unable to fetch IP of Puppet Master Server!"
   fi
+
   echo "$PUPPET_MASTER_IP"
 }
 
@@ -20,7 +23,21 @@ function ssh_to_puppet_master() {
   # shellcheck disable=SC2046
   export $(cat $LOCAL_ENV_FILE | xargs)
 
-  DNS=$(get_puppet_master_dns)
+  DNS=$(get_puppet_node_dns "Puppet Master Server")
+
+  if [[ -z "${SSH_PRIVATE_KEY_PATH}" ]]; then
+    echo "ERROR: SSH_PRIVATE_KEY_PATH must be set!"
+  fi
+
+  ssh -i ${SSH_PRIVATE_KEY_PATH} ec2-user@${DNS}
+}
+
+function ssh_to_puppet_slave() {
+  LOCAL_ENV_FILE=${${1}:-.env}
+  # shellcheck disable=SC2046
+  export $(cat $LOCAL_ENV_FILE | xargs)
+
+  DNS=$(get_puppet_node_dns "Puppet Agent Node")
 
   if [[ -z "${SSH_PRIVATE_KEY_PATH}" ]]; then
     echo "ERROR: SSH_PRIVATE_KEY_PATH must be set!"
