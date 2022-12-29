@@ -7,7 +7,7 @@ This repository is a fork of https://github.com/isqo/deploy_puppet5_env_on_AWS_w
 
 ## Pre-requisites
  
-- You should have created the infrastructure with the IaC Terraform code of this repository.
+- You should have created the infrastructure with the IaC (Terraform code) of this repository.
 - You should have set the required environment variables in either .local.env.
 
 ## Usage
