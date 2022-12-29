@@ -62,12 +62,25 @@ function update_infra() {
    terraform -chdir=terraform plan && terraform -chdir=terraform apply
 }
 
+function run_puppet_on_slave(){
+  LOCAL_ENV_FILE=${${1}:-.local.env}
+
+  ssh_to_puppet_slave $LOCAL_ENV_FILE "sudo su - root -c 'puppet agent -t'"
+}
+
+function run_puppet_on_master(){
+  LOCAL_ENV_FILE=${${1}:-.local.env}
+
+  ssh_to_puppet_master $LOCAL_ENV_FILE "sudo su - root -c 'puppet agent -t'"
+}
+
+
 function sync_r10k_and_run_puppet_on_slave(){
   LOCAL_ENV_FILE=${${1}:-.local.env}
 
   ssh_to_puppet_master $LOCAL_ENV_FILE "sudo su - root -c 'r10k deploy environment -v'"
 
-  ssh_to_puppet_slave $LOCAL_ENV_FILE "sudo su - root -c 'puppet agent -t'"
+  run_puppet_on_slave $LOCAL_ENV_FILE
 }
 
 function sync_r10k_and_run_puppet_on_master(){
@@ -75,5 +88,5 @@ function sync_r10k_and_run_puppet_on_master(){
 
   ssh_to_puppet_master $LOCAL_ENV_FILE "sudo su - root -c 'r10k deploy environment -v'"
 
-  ssh_to_puppet_master $LOCAL_ENV_FILE "sudo su - root -c 'puppet agent -t'"
+  run_puppet_on_master $LOCAL_ENV_FILE
 }
