@@ -1,7 +1,7 @@
 
 # Introduction
 
-This repository is a fork of https://github.com/isqo/deploy_puppet5_env_on_AWS_with_terraform to test it and maintain it.
+This repository is a fork of https://github.com/1Strategy/deploy_puppet5_env_on_AWS_with_terraform to test it and maintain it.
 
 # Utility functions guide
 
