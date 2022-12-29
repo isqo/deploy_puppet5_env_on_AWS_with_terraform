@@ -8,7 +8,7 @@ This repository is a fork of https://github.com/1Strategy/deploy_puppet5_env_on_
 ## Pre-requisites
  
 - You should have created the infrastructure with the IaC (Terraform code) of this repository.
-- You should have set the required environment variables in either .local.env.
+- You should have set the required environment variables in .local.env.
 
 ## Usage
 
