@@ -19,7 +19,9 @@ function get_puppet_node_dns() {
 }
 
 function ssh_to_puppet_master() {
-  LOCAL_ENV_FILE=${${1}:-.env}
+  LOCAL_ENV_FILE=${${1}:-.local.env}
+  CMD=${${2}:-}
+
   # shellcheck disable=SC2046
   export $(cat $LOCAL_ENV_FILE | xargs)
 
@@ -29,11 +31,12 @@ function ssh_to_puppet_master() {
     echo "ERROR: SSH_PRIVATE_KEY_PATH must be set!"
   fi
 
-  ssh -i ${SSH_PRIVATE_KEY_PATH} ec2-user@${DNS}
+  ssh -i ${SSH_PRIVATE_KEY_PATH} ec2-user@${DNS} "$CMD"
 }
 
 function ssh_to_puppet_slave() {
-  LOCAL_ENV_FILE=${${1}:-.env}
+  LOCAL_ENV_FILE=${${1}:-.local.env}
+  CMD=${${2}:-}
   # shellcheck disable=SC2046
   export $(cat $LOCAL_ENV_FILE | xargs)
 
@@ -43,11 +46,11 @@ function ssh_to_puppet_slave() {
     echo "ERROR: SSH_PRIVATE_KEY_PATH must be set!"
   fi
 
-  ssh -i ${SSH_PRIVATE_KEY_PATH} ec2-user@${DNS}
+  ssh -i ${SSH_PRIVATE_KEY_PATH} ec2-user@${DNS} "$CMD"
 }
 
 function update_infra() {
-  LOCAL_ENV_FILE=${${1}:-.env}
+  LOCAL_ENV_FILE=${${1}:-.local.env}
 
   # shellcheck disable=SC2046
   export $(cat $LOCAL_ENV_FILE | xargs)
@@ -57,4 +60,20 @@ function update_infra() {
   fi
 
    terraform -chdir=terraform plan && terraform -chdir=terraform apply
+}
+
+function sync_r10k_and_run_puppet_on_slave(){
+  LOCAL_ENV_FILE=${${1}:-.local.env}
+
+  ssh_to_puppet_master $LOCAL_ENV_FILE "sudo su - root -c 'r10k deploy environment -v'"
+
+  ssh_to_puppet_slave $LOCAL_ENV_FILE "sudo su - root -c 'puppet agent -t'"
+}
+
+function sync_r10k_and_run_puppet_on_master(){
+  LOCAL_ENV_FILE=${${1}:-.local.env}
+
+  ssh_to_puppet_master $LOCAL_ENV_FILE "sudo su - root -c 'r10k deploy environment -v'"
+
+  ssh_to_puppet_master $LOCAL_ENV_FILE "sudo su - root -c 'puppet agent -t'"
 }
