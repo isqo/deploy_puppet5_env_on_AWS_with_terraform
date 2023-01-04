@@ -63,7 +63,9 @@ data "template_file" "master_userdata" {
     puppet_repo     = "${var.puppet_repository}"
     hosted_zone_id  = "${aws_route53_zone.puppet_zone.zone_id}"
     efs_id          = "${aws_efs_file_system.master_node_efs.id}"
-    r10k_repo       = "${var.r10k_repository}"
+    r10k_remote       = "${var.r10k_remote}"
+    r10k_ssh_key      = "${var.r10k_ssh_key}"
+    r10k_remote_domain_for_ssh_key_fingerprint = "${var.r10k_remote_domain_for_ssh_key_fingerprint}"
   }
 }
 

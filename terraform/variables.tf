@@ -80,7 +80,17 @@ variable "asg_max" {
   description = "Minimum number of nodes in the Auto-Scaling Group"
 }
 
-variable "r10k_repository" {
+variable "r10k_remote" {
   type        = string
-  description = "URL of the r10k control repository"
+  description = "URL of the r10k control repository remote"
+}
+
+variable "r10k_remote_domain_for_ssh_key_fingerprint" {
+  type        = string
+  description = "Domain of the r10k control repository for SSH key fingerprint"
+}
+
+variable "r10k_ssh_key" {
+  type        = string
+  description = "The private SSH key to auth against the r10 git remote."
 }

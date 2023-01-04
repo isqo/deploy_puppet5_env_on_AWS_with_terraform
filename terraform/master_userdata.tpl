@@ -76,10 +76,20 @@ function generater10kconfig {
 
 :sources:
   :base:
-    remote: '${r10k_repo}'
     basedir: '/etc/puppetlabs/code/environments'
+    remote: '${r10k_remote}'
+
+:git:
+  private_key: "/root/.ssh/id_rsa"
+
 EOL
     fi
+}
+
+function setup_control_repo_github_auth_ssh_key {
+  ssh-keyscan github.com >> ~/.ssh/known_hosts
+  echo ${r10k_ssh_key} | base64 -d > /root/.ssh/id_rsa
+  chmod 600 /root/.ssh/id_rsa
 }
 
 function installr10k {
@@ -129,12 +139,14 @@ if find /etc/puppetlabs -mindepth 1 -print -quit | grep -q .; then
     installpuppet
     installr10k
     restoremaster
+    setup_control_repo_github_auth_ssh_key
 
 ## Folder /etc/puppetlabs is empty, install and configure puppet master ##
 else
     installpuppet
     installr10k
     generater10kconfig
+    setup_control_repo_github_auth_ssh_key
 fi
 
 # Start the puppet master and add the service to start up #
