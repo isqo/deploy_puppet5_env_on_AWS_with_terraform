@@ -145,14 +145,14 @@ if find /etc/puppetlabs -mindepth 1 -print -quit | grep -q .; then
     installpuppet
     installr10k
     restoremaster
-    setup_control_repo_github_auth_ssh_key
+    setup_github_auth_ssh_keys
 
 ## Folder /etc/puppetlabs is empty, install and configure puppet master ##
 else
     installpuppet
     installr10k
     generater10kconfig
-    setup_control_repo_github_auth_ssh_key
+    setup_github_auth_ssh_keys
 fi
 
 # Start the puppet master and add the service to start up #
