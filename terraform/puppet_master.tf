@@ -63,9 +63,14 @@ data "template_file" "master_userdata" {
     puppet_repo     = "${var.puppet_repository}"
     hosted_zone_id  = "${aws_route53_zone.puppet_zone.zone_id}"
     efs_id          = "${aws_efs_file_system.master_node_efs.id}"
-    r10k_remote       = "${var.r10k_remote}"
-    r10k_ssh_key      = "${var.r10k_ssh_key}"
-    r10k_remote_domain_for_ssh_key_fingerprint = "${var.r10k_remote_domain_for_ssh_key_fingerprint}"
+    control_repo_remote       = "${var.control_repo_remote}"
+    control_repo_ssh_key      = "${var.control_repo_ssh_key}"
+    control_repo_ssh_key_path      = "${var.control_repo_ssh_key_path}"
+    control_repo_remote_domain_for_ssh_key_fingerprint = "${var.control_repo_remote_domain_for_ssh_key_fingerprint}"
+    eyaml_secrets_remote       = "${var.eyaml_secrets_remote}"
+    eyaml_secrets_ssh_key = "${var.eyaml_secrets_ssh_key}"
+    eyaml_secrets_ssh_key_path = "${var.eyaml_secrets_ssh_key_path}"
+    eyaml_secrets_remote_domain_for_ssh_key_fingerprint = "${var.eyaml_secrets_remote_domain_for_ssh_key_fingerprint}"
   }
 }
 

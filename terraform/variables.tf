@@ -80,17 +80,42 @@ variable "asg_max" {
   description = "Minimum number of nodes in the Auto-Scaling Group"
 }
 
-variable "r10k_remote" {
+variable "control_repo_remote" {
   type        = string
-  description = "URL of the r10k control repository remote"
+  description = "URL of the r10k control GIT repository remote"
 }
 
-variable "r10k_remote_domain_for_ssh_key_fingerprint" {
+variable "control_repo_remote_domain_for_ssh_key_fingerprint" {
   type        = string
-  description = "Domain of the r10k control repository for SSH key fingerprint"
+  description = "Domain of the r10k control repository for the SSH key fingerprint."
 }
 
-variable "r10k_ssh_key" {
+variable "control_repo_ssh_key" {
   type        = string
-  description = "The private SSH key to auth against the r10 git remote."
+  description = "The private SSH key to auth against the r10k git remote."
+}
+
+variable "control_repo_ssh_key_path" {
+  type        = string
+  description = "The path to which the r10k private SSH key will be deployed."
+}
+
+variable "eyaml_secrets_remote" {
+  type        = string
+  description = "URL of the eyaml secrets Git repository remote"
+}
+
+variable "eyaml_secrets_remote_domain_for_ssh_key_fingerprint" {
+  type        = string
+  description = "Domain of the eyaml secrets repository for the SSH key fingerprint."
+}
+
+variable "eyaml_secrets_ssh_key" {
+  type        = string
+  description = "The private SSH key to auth against the eyaml secrets git remote."
+}
+
+variable "eyaml_secrets_ssh_key_path" {
+  type        = string
+  description = "The path to which the eyaml secrets private SSH key will be deployed."
 }

@@ -77,19 +77,25 @@ function generater10kconfig {
 :sources:
   :base:
     basedir: '/etc/puppetlabs/code/environments'
-    remote: '${r10k_remote}'
+    remote: '${control_repo_remote}'
 
-:git:
-  private_key: "/root/.ssh/id_rsa"
+git:
+  repositories:
+    - remote: '${control_repo_remote}'
+      private_key: '${control_repo_ssh_key_path}'
+    - remote: '${eyaml_secrets_remote}'
+      private_key: '${eyaml_secrets_ssh_key_path}'
 
 EOL
     fi
 }
 
-function setup_control_repo_github_auth_ssh_key {
-  ssh-keyscan github.com >> ~/.ssh/known_hosts
-  echo ${r10k_ssh_key} | base64 -d > /root/.ssh/id_rsa
-  chmod 600 /root/.ssh/id_rsa
+function setup_github_auth_ssh_keys {
+  ssh-keyscan ${control_repo_remote_domain_for_ssh_key_fingerprint} >> ~/.ssh/known_hosts
+  ssh-keyscan ${eyaml_secrets_remote_domain_for_ssh_key_fingerprint} >> ~/.ssh/known_hosts
+  echo ${control_repo_ssh_key} | base64 -d > ${control_repo_ssh_key_path}
+  echo ${eyaml_secrets_ssh_key} | base64 -d > ${eyaml_secrets_ssh_key_path}
+  chmod 600 ${control_repo_ssh_key_path} ${eyaml_secrets_ssh_key_path}
 }
 
 function installr10k {
